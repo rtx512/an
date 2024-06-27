@@ -1,4 +1,4 @@
-### Задание 1
+![image](https://github.com/rtx512/an/assets/101506362/59cb4d8c-42ee-4dcb-bcd8-d26cbf5f74ea)### Задание 1
 - ISP
     1. hostnamectl set-hostname isp
     2. nano /etc/net/sysctl.conf 
@@ -577,19 +577,111 @@
     16. chmod 777 /raid5/nfs
     17. vim /etc/exports
         1. в конец добавляем:
-            /raid5/nfs 10.10.10.110(rw,sync) 20.20.20.100(rw,sync)
+           ```
+           /raid5/nfs 10.10.10.110(rw,sync) 20.20.20.100(rw,sync)
+           ```          
 
 - WEB-L
     1. mkdir /mnt/nfs
     2. vim /etc/fstab
         1. добавляем в конец, пишем через табуляцию, а не пробел:
+           ```
            10.10.10.100:/raid5/nfs /mnt/nfs nfs rw,sync 0 0
+           ```
     3. mount -av
 
 - WEB-R
     1. mkdir /mnt/nfs
     2. vim /etc/fstab
         1. добавляем в конец, пишем через табуляцию, а не пробел:
+           ```
            10.10.10.100:/raid5/nfs /mnt/nfs nfs rw,sync 0 0
+           ```
     3. mount -av
+
+
+### Задание 8
+
+- WEB-L
+    1. systemctl disable --now ahttpd
+       systemctl disable --now alteratord
+    2. vim ~/wiki.yml
+        1. пишем это:
+           ```
+           version: '3'
+           services:
+               MediaWiki:
+                   container_name: wiki
+                   image: mediawiki
+                   restart: always
+                   ports:
+                       - 8080:80
+                   links:
+                       - database
+                   volumes:
+                       - images:/var/www/html/images
+                       # - ./LocalSettings.php:/var/www/html/LocalSettings.php
+        
+              database:
+                  container_name: db
+                  image: mysql
+                  restart: always
+                  environment:
+                      MYSQL_DATABASE: mediawiki
+                      MYSQL_USER: wiki
+                      MYSQL_PASSWORD: DEP@ssw0rd
+                      MYSQL_RANDOM_ROOT_PASSWORD: 'toor'
+                   volumes:
+                       - dbvolume:/var/lib/mysql
+        
+               volumes:
+                   images:
+                   dbvolume:
+                       external: true
+           ```
+       3. systemctl enable --now docker
+       4. docker volume create dbvolume
+       5. cd ~
+       6. docker-compose -f wiki.yml up -d 
+       7. заходим в mozila, пишем в строке url:
+          localhost:8080
+          ![image](https://github.com/rtx512/an/assets/101506362/f6dd5dd1-e9bf-448f-bbd5-9571f874fc6d)
+       8. жмем set up the wiki
+          ![image](https://github.com/rtx512/an/assets/101506362/8d6dede0-2356-4ebc-9e67-691b5e59d9f3)
+       9. далее
+           ![image](https://github.com/rtx512/an/assets/101506362/a4588519-0e87-449e-98d8-287ec3bae455)
+       10. далее
+           ![image](https://github.com/rtx512/an/assets/101506362/a1f0d7e5-c13c-4140-806e-f8954fe79c6d)
+       11. Пароль: DEP@ssw0rd
+           ![image](https://github.com/rtx512/an/assets/101506362/2545db74-165e-4c5e-9535-6ae388843f8b)
+       12. Далее
+           ![image](https://github.com/rtx512/an/assets/101506362/75afca69-2bdc-40c6-9c02-f65c63ae3d1c)
+       13. =
+           ![image](https://github.com/rtx512/an/assets/101506362/5f9b1820-a469-412d-8fcb-1a6736f92f28)
+       14. Пароль: DEP@ssw0rd почту не указываем
+           ![image](https://github.com/rtx512/an/assets/101506362/615047be-2977-4b8e-8b01-7ca182450ede)
+       15. Далее
+           ![image](https://github.com/rtx512/an/assets/101506362/5112b132-b31e-4ac8-90bd-0d860c97be3f)
+       16. Жмем до конца далее и скачается файл, надо найти куда этот файл скачался, скорее всего вот сюда             /home/user/Загрузки/
+           ![image](https://github.com/rtx512/an/assets/101506362/aa7b1041-a44d-480c-b8f5-fd02d061c2c9)
+       17. Копируем скачанный файл:
+           ```
+           cp /home/user/Загрузки/LocalSettings.php ~/LocalSettings.php
+           ```
+       18. vim ~/wiki.yml
+               1. расскоментируем 
+                   - ./LocalSettings.php:/var/www/html/LocalSettings.php
+       19. vim ~/LocalSettings.php
+           1. $wgServer = “http://mediawiki.au.team:8080”
+       20. docker-compose -f wiki.yml stop
+       21. docker-compose -f wiki.yml up -d
+
+
+
+
+
+
+
+
+
 
