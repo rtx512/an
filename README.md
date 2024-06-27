@@ -375,6 +375,9 @@
         100      PTR    srv-l.au.team.
         110      PTR    web-l.au.team.
         ```
+        3. должно получиться так
+        ![image](https://github.com/rtx512/an/assets/101506362/70ddfcfc-f5da-4f8e-a75c-9bb0607e7813)
+
     11. cp right.reverse cli.reverse
     12. vim cli.reverse
         1. заменяем 10.10.10.in-addr.arpa. на 35.35.35.in-addr.arpa. и root.10.10.10.in-addr.arpa. на                  root.35.35.35.in-addr.arpa.
@@ -385,9 +388,63 @@
         1        PTR    isp.au.team.
         10       PTR    cli.au.team.
         ```
+        3. должно получиться вот так:
+        ![image](https://github.com/rtx512/an/assets/101506362/fca96f84-50ae-445e-8c54-f1503855f10f)
+
     13. chmod 777 au.team
     14. chmod 777 right.reverse
     15. chmod 777 left.reverse
     16. chmod 777 cli.reverse
     17. systemctl restart bind
     18. vim /etc/resolv.conf
+        1. должен быть указан только один nameserver 127.0.0.1
+        ![image](https://github.com/rtx512/an/assets/101506362/65312d9b-1f9f-42c6-9284-e1f36081a998)
+- WEB-R
+    1. systemctl enable --now bind
+    2. vim /etc/bind/options.conf
+        1. что должно быть в options:
+        ```
+        listen-on { any; };
+        forwarders { 10.10.10.100; };
+        dnssec-validation no;
+        recursion yes;
+        allow-query { any; };
+        allow-recursion { any; };
+        ```
+        2. вот так:
+        ![image](https://github.com/rtx512/an/assets/101506362/85f47899-3497-4c90-b68a-95e08c96939f)
+    3. vim /etc/bind/local.conf
+        1. добавляем после слов Add other zones here:
+        ```
+        zone "au.team" {
+                        type slave;
+                        file "slave/au.team";
+                        masters {10.10.10.100;};
+        };
+        zone "10.10.10.in-addr.arpa" {
+                        type slave;
+                        file "slave/left.reverse";
+                        masters {10.10.10.100;};
+        };
+        zone "20.20.20.in-addr.arpa" {
+                        type slave;
+                        file "slave/right.reverse";
+                        masters {10.10.10.100;};
+        };
+        zone "35.35.35.in-addr.arpa" {
+                        type slave;
+                        file "slave/cli.reverse";
+                        masters {10.10.10.100;};
+        };
+        ```
+        2. вот так:
+       
+        ![image](https://github.com/rtx512/an/assets/101506362/d3bab9f7-9e1f-4172-bfa9-8250e9d9a89e)
+        
+     4. chown named:named /var/lib/bind/zone/slave/
+     5. chown named:named /etc/bind/zone/slave/
+     6. systemctl restart bind
+     7. vim /etc/resolv.conf
+        1. должен быть указан только один nameserver 127.0.0.1
+        ![image](https://github.com/rtx512/an/assets/101506362/0ea2ecc5-471d-4689-9d8f-fce1e73341b2)
+
