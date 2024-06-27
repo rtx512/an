@@ -1,4 +1,4 @@
-![image](https://github.com/rtx512/an/assets/101506362/59cb4d8c-42ee-4dcb-bcd8-d26cbf5f74ea)### Задание 1
+### Задание 1
 - ISP
     1. hostnamectl set-hostname isp
     2. nano /etc/net/sysctl.conf 
@@ -676,6 +676,20 @@
        20. docker-compose -f wiki.yml stop
        21. docker-compose -f wiki.yml up -d
 
+- WEB-R
+    1. systemctl disable --now ahttpd
+       systemctl disable --now alteratord
+
+### Задание 9
+- CLI
+    1. apt-get install yandex-browser -y
+    2. запустить НЕ от рута с помощью команды:
+       yandex-browser-stable
+       запустить от рута с помощью команды:
+       yandex-browser-stable --no-sandbox
+
+### Подсказачка: 
+Если DNS сервер не работает, systemctl status bind выдает ошибки, надо systemctl restart bind на DNS сервере
 
 
 
