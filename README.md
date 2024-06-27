@@ -250,3 +250,38 @@
     6. vim /etc/strongswan/ipsec.secrets
         1. 100.100.100.10 150.150.150.10 : PSK “P@ssw0rd”
     7. systemctl enable --now ipsec.service
+
+### Задание 4
+- WEB-L
+    1. vim /etc/openssh/banner.txt
+        1. Authorized access only
+    2. vim /etc/openssh/sshd_config
+        1. расскоментируем строчку Port 22
+           пишем вместо 22 порт 2024
+        2. расскоментируем строчку MaxAuthTries 6
+           пишем вместо 6 попыток 2
+        3. расскоментируем строчку Banner none
+           вместо none пишем путь к banner.txt /etc/openssh/banner.txt
+        4. добавляем в конец
+           AllowUsers sshuser
+    3. adduser sshuser
+    4. passwd sshuser
+        1. P@ssw0rd два раза
+    5. systemctl restart sshd
+
+- WEB-R
+    1. vim /etc/openssh/banner.txt
+        1. Authorized access only
+    2. vim /etc/openssh/sshd_config
+        1. расскоментируем строчку Port 22
+           пишем вместо 22 порт 2024
+        2. расскоментируем строчку MaxAuthTries 6
+           пишем вместо 6 попыток 2
+        3. расскоментируем строчку Banner none
+           вместо none пишем путь к banner.txt /etc/openssh/banner.txt
+        4. добавляем в конец
+           AllowUsers sshuser
+    3. adduser sshuser
+    4. passwd sshuser
+        1. P@ssw0rd два раза
+    5. systemctl restart sshd
