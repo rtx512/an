@@ -466,9 +466,130 @@
 - RTR-R
     1. vim /etc/resolv.conf
         1. должен быть указан только один nameserver 20.20.20.100 (если WEB-R не работает, то 10.10.10.100)
+           
            ![image](https://github.com/rtx512/an/assets/101506362/8ef0000e-e0a9-4a04-a477-94ccd777d744)
 
 - WEB-L
     1. vim /etc/resolv.conf
         1. должен быть указан только один nameserver 10.10.10.100
            ![image](https://github.com/rtx512/an/assets/101506362/186f78c6-e39c-4c64-a863-13f6f204b7f2)
+
+
+### Задание 6
+- ISP
+    1. vim /etc/chrony.conf
+        1. в конец пишем:
+        ```
+            server 127.0.0.1
+            allow 100.100.100.0/28
+            allow 150.150.150.0/28
+            allow 35.35.35.0/28
+            allow 10.10.10.0/24
+            allow 20.20.20.0/24
+            local stratum 5
+        ```
+    2. systemctl restart chronyd
+
+- CLI
+    1. vim /etc/chrony.conf
+        1. комментируем (пишем #) перед “pool pool.ntp.org iburst”
+        2. в конец пишем:
+        ```
+            server 35.35.35.1 iburst
+        ```
+    2. systemctl restart chronyd
+
+- RTR-L
+    1. vim /etc/chrony.conf
+        1. комментируем (пишем #) перед “pool pool.ntp.org iburst”
+        2. в конец пишем:
+        ```
+           server 100.100.100.1 iburst
+        ```
+    2. systemctl restart chronyd
+ 
+- RTR-R
+    1. vim /etc/chrony.conf
+        1. комментируем (пишем #) перед “pool pool.ntp.org iburst”
+        2. в конец пишем:
+        ```
+            server 150.150.150.1 iburst
+        ```
+    2. systemctl restart chronyd
+
+- WEB-R
+    1. vim /etc/chrony.conf
+        1. комментируем (пишем #) перед “pool pool.ntp.org iburst”
+        2. в конец пишем:
+        ```
+            server 150.150.150.1 iburst
+        ```
+    2. systemctl restart chronyd
+ 
+- WEB-L
+    1. vim /etc/chrony.conf
+        1. комментируем (пишем #) перед “pool pool.ntp.org iburst”
+        2. в конец пишем:
+        ```
+            server 100.100.100.1 iburst
+        ```
+    2. systemctl restart chronyd
+
+- SRV-L
+    1. vim /etc/chrony.conf
+        1. комментируем (пишем #) перед “pool pool.ntp.org iburst”
+        2. в конец пишем:
+        ```
+            server 100.100.100.1 iburst
+        ```
+    2. systemctl restart chronyd
+
+### Задание 7
+- SRV-L
+    1. lsblk проверяем NAME 4 дисков размером 1G: в моем случае 4 диска размером 1 гб это sdb sdc sdd sde          ДОЛЖНО БЫТЬ 4 ДИСКА: sdb sdc sdd sde:
+    ![image](https://github.com/rtx512/an/assets/101506362/1a1e22a4-db1a-4cc3-8d17-a6fa5e1b0caa)
+    2. cfdisk /dev/sdb
+    3. =
+    ![image](https://github.com/rtx512/an/assets/101506362/4d2878ae-9d4b-4caa-b3d4-7f10c7591bb7)
+
+    4. Enter
+    5. =
+    ![image](https://github.com/rtx512/an/assets/101506362/176bdc64-5812-4e28-91c8-3dd35a1bf9e4)
+
+    6. =
+    ![image](https://github.com/rtx512/an/assets/101506362/4ca3ac97-c7fa-47fe-a5d6-bbe7003cb9f8)
+
+    7. =
+    ![image](https://github.com/rtx512/an/assets/101506362/791c1bee-e0a8-4ab2-8534-87704863c382)
+
+    8. С пункта 2 повторить действия со всеми остальными дисками (sdb, sdc, sdd, sde)
+    9. mdadm --create /dev/md0 --level=5 --raid-devices=4 /dev/sdb1 /dev/sdc1 /dev/sdd1 /dev/sde1
+    10. mdadm --detail --scan --verbose | tee -a /etc/mdadm.conf
+    11. mkfs.ext4 /dev/md0
+    12. mkdir /raid5
+    13. vim /etc/fstab
+        1. добавить в конец, пишем через табуляцию, а не пробел:
+           /dev/md0 /raid5 ext4 defaults 0 0
+        2. так
+           ![image](https://github.com/rtx512/an/assets/101506362/f6614c56-743a-43d8-b9a9-19aa244620ce)
+    14. reboot
+    15. mkdir /raid5/nfs
+    16. chmod 777 /raid5/nfs
+    17. vim /etc/exports
+        1. в конец добавляем:
+            /raid5/nfs 10.10.10.110(rw,sync) 20.20.20.100(rw,sync)
+
+- WEB-L
+    1. mkdir /mnt/nfs
+    2. vim /etc/fstab
+        1. добавляем в конец, пишем через табуляцию, а не пробел:
+           10.10.10.100:/raid5/nfs /mnt/nfs nfs rw,sync 0 0
+    3. mount -av
+
+- WEB-R
+    1. mkdir /mnt/nfs
+    2. vim /etc/fstab
+        1. добавляем в конец, пишем через табуляцию, а не пробел:
+           10.10.10.100:/raid5/nfs /mnt/nfs nfs rw,sync 0 0
+    3. mount -av
+
