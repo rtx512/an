@@ -448,3 +448,27 @@
         1. должен быть указан только один nameserver 127.0.0.1
         ![image](https://github.com/rtx512/an/assets/101506362/0ea2ecc5-471d-4689-9d8f-fce1e73341b2)
 
+- CLI
+    1. vim /etc/resolv.conf
+        1. должен быть указан только один nameserver 10.10.10.100
+           ![image](https://github.com/rtx512/an/assets/101506362/dacb1237-876a-4547-84f9-bae50a0f9af9)
+
+- ISP
+    1. vim /etc/resolv.conf
+        1. должен быть указан только один nameserver 10.10.10.100
+           ![image](https://github.com/rtx512/an/assets/101506362/7d673db5-344f-4ed8-986b-8c8d4badd638)
+
+- RTR-L
+    1. vim /etc/resolv.conf
+        1. должен быть указан только один nameserver 10.10.10.100
+           ![image](https://github.com/rtx512/an/assets/101506362/8088bc5d-c2cf-4dd1-8390-4ff80f650406)
+
+- RTR-R
+    1. vim /etc/resolv.conf
+        1. должен быть указан только один nameserver 20.20.20.100 (если WEB-R не работает, то 10.10.10.100)
+           ![image](https://github.com/rtx512/an/assets/101506362/8ef0000e-e0a9-4a04-a477-94ccd777d744)
+
+- WEB-L
+    1. vim /etc/resolv.conf
+        1. должен быть указан только один nameserver 10.10.10.100
+           ![image](https://github.com/rtx512/an/assets/101506362/186f78c6-e39c-4c64-a863-13f6f204b7f2)
