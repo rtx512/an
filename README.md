@@ -285,3 +285,109 @@
     4. passwd sshuser
         1. P@ssw0rd два раза
     5. systemctl restart sshd
+
+### Задание 5
+- SRV-L
+    1. systemctl enable --now bind
+    2. vim /etc/bind/options.conf
+        1. что должно быть в options:
+        ```
+        listen-on { any; };
+        forwarders { 94.232.137.104; };
+        dnssec-validation no;
+        recursion yes;
+        allow-query { any; };
+        allow-recursion { any; };
+        ```
+        2. вот так
+        ![image](https://github.com/rtx512/an/assets/101506362/56621db6-029d-4568-ab80-15b71960bcbb)
+
+    3. vim /etc/bind/local.conf
+        1. добавляем после слов Add other zones here:
+        ```
+        zone "au.team" {
+                        type master;
+                        file "au.team";
+                        allow-transfer {20.20.20.100;};
+        };
+        zone "10.10.10.in-addr.arpa" {
+                        type master;
+                        file "left.reverse";
+                        allow-transfer {20.20.20.100;};
+        };
+        zone "20.20.20.in-addr.arpa" {
+                        type master;
+                        file "right.reverse";
+                        allow-transfer {20.20.20.100;};
+        };
+        zone "35.35.35.in-addr.arpa" {
+                        type master;
+                        file "cli.reverse";
+                        allow-transfer {20.20.20.100;};
+        };
+        ```
+        2. вот так
+        ![image](https://github.com/rtx512/an/assets/101506362/56acf213-10d6-4668-8183-32b6396d0970)
+
+    4. cd /etc/bind/zone/
+    5. cp localhost au.team
+    6. vim au.team
+        1. заменяем localhost. на au.team.  и root.localhost. на root.au.team.
+        2. редачим зоны, должны получиться такие зоны, пишем через табуляцию (Tab), а не пробелы:
+        ```
+        @        IN     NS    au.team.
+        @        IN     A     10.10.10.100
+        isp      IN     A     100.100.100.1
+        rtr-l    IN     A     10.10.10.1
+        rtr-r    IN     A     20.20.20.1
+        web-l    IN     A     10.10.10.110
+        web-r    IN     A     20.20.20.100
+        srv-l    IN     A     10.10.10.100
+        cli      IN     A     35.35.35.10
+        dns      IN     CNAME srv-l
+        ntp      IN     CNAME isp
+        mediawiki       IN    CNAME    web-l
+        ```
+        3. должно получиться так
+        ![image](https://github.com/rtx512/an/assets/101506362/50cc1868-6280-41c0-a2f4-d06cb3712594)
+
+    7. cp localhost right.reverse
+    8. vim right.reverse
+        1. заменяем localhost. на 20.20.20.in-addr.arpa. и root.localhost. на root.20.20.20.in-addr.arpa.
+        2. редачим зоны, должны получиться такие зоны пишем через табуляцию (Tab), а не пробелы:
+        ```
+        @        IN     NS    au.team.
+        @        IN     A     20.20.20.100
+        1        PTR    rtr-r.au.team.
+        100      PTR    web-r.au.team.
+        ```
+        3. должно получиться так
+        ![image](https://github.com/rtx512/an/assets/101506362/c673aada-a06f-42be-96aa-6cd4bbcaf6b8)
+
+    9. cp right.reverse left.reverse
+    10. vim left.reverse
+        1. заменяем 20.20.20.in-addr.arpa. на 10.10.10.in-addr.arpa. и root.20.20.20.in-addr.arpa. на                  root.10.10.10.in-addr.arpa.
+        2. редачим зоны, должны получиться такие зоны пишем через табуляцию (Tab), а не пробелы:
+        ```
+        @        IN     NS    au.team.
+        @        IN     A     10.10.10.100
+        1        PTR    rtr-l.au.team.
+        100      PTR    srv-l.au.team.
+        110      PTR    web-l.au.team.
+        ```
+    11. cp right.reverse cli.reverse
+    12. vim cli.reverse
+        1. заменяем 10.10.10.in-addr.arpa. на 35.35.35.in-addr.arpa. и root.10.10.10.in-addr.arpa. на                  root.35.35.35.in-addr.arpa.
+        2. редачим зоны, должны получиться такие зоны пишем через табуляцию (Tab), а не пробелы:
+        ```
+        @        IN     NS    au.team.
+        @        IN     A     35.35.35.1
+        1        PTR    isp.au.team.
+        10       PTR    cli.au.team.
+        ```
+    13. chmod 777 au.team
+    14. chmod 777 right.reverse
+    15. chmod 777 left.reverse
+    16. chmod 777 cli.reverse
+    17. systemctl restart bind
+    18. vim /etc/resolv.conf
