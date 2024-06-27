@@ -208,8 +208,45 @@
           ike=aes128-sha256-modp3072
           esp=aes128-sha256
         ```
-    7. vim /etc/strongswan/ipsec.secrets
+    6. vim /etc/strongswan/ipsec.secrets
        ```
        100.100.100.10 150.150.150.10 : PSK “P@ssw0rd”
        ```
-    8. systemctl enable --now ipsec.service
+    7. systemctl enable --now ipsec.service
+
+- RTR-R
+    1. vim /etc/gre.up
+    ```
+       #!/bin/bash
+       ip tunnel add tun0 mode gre local 150.150.150.10 remote 100.100.100.10
+       ip addr add 10.5.5.2/30 dev tun0
+       ip link set up tun0
+       ip route add 10.10.10.0/24  via 10.5.5.1
+    ```
+    2. chmod +x /etc/gre.up
+    3. /etc/gre.up
+    4. vim /etc/crontab
+        1. в конец добавляем:
+        ```
+        @reboot root /etc/gre.up
+        ```
+    5. vim /etc/strongswan/ipsec.conf
+        1. ниже “config setup” пишем:
+        ```
+        conn vpn
+        (следующие строки через tab)
+            auto=start
+            type=tunnel
+            authby=secret
+            left=150.150.150.10
+            right=100.100.100.10
+            leftsubnet=0.0.0.0/0
+            rightsubnet=0.0.0.0/0
+            leftprotoport=gre
+            rightprotoport=gre
+            ike=aes128-sha256-modp3072
+            esp=aes128-sha256
+        ```
+    6. vim /etc/strongswan/ipsec.secrets
+        1. 100.100.100.10 150.150.150.10 : PSK “P@ssw0rd”
+    7. systemctl enable --now ipsec.service
